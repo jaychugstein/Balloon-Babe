@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 3,
+  "title": "Balloon Babe",
+  "description": "Help her pump up her balloon! Jump on the pump: hold A or B for a big jump, tap for a small hop, and time every jump for the moment the pump bottoms out, because timing is everything. After 11 seconds the balloon slips off and leaks its way up past the clouds, birds and planes into the stars. Score is your jump points plus how high it flies.",
+  "author": "jaychugstein",
+  "version": "1.0.0",
+  "date": "2026-10-31",
+  "genre": "Action",
+  "license": "MIT",
+  "sourceUrl": "https://github.com/jaychugstein/Balloon-Babe",
+  "binaries": [
+    {
+      "title": "Balloon Babe",
+      "filename": "BalloonBabe.hex",
+      "device": "ArduboyFX",
+      "flashdata": "BalloonBabe-fxdata.bin",
+      "titleimage": "title.png"
+    }
+  ]
+}
