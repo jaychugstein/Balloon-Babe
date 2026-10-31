@@ -9,7 +9,9 @@
 #include "fxdata.h"                        // the art lives on the FX flash chip (Arduboy FX / FX-C, POOM)
 Arduboy2Base ab;
 ARDUBOY_NO_USB                             // saves ~3 KB, like most cart games (press reset to upload something else)
-ArduboyTones snd(ab.audio.enabled);
+bool mute;                                 // the title is silent without switching the speaker off and on (that crackled)
+bool sndOn() { return ab.audio.enabled() && !mute; }
+ArduboyTones snd(sndOn);
 
 // ---------------------------------------------------------------- small text helpers (5x7 font)
 int16_t tx_, ty_; bool tw_;
@@ -336,9 +338,9 @@ void startScreen() {
   // When the balloon is a fair size it slips off and whooshes up past the logo, and she starts a new one.
   const int16_t TX = 20;                                             // the pump's x on this screen
   if (!relT) {
-    autoJ = true; bool was = ab.audio.enabled(); ab.audio.off();     // the title is silent
+    autoJ = true; mute = true;                                         // the title is silent
     pumpUpdate(phase == P_BOTTOM && frameN - bottomAt >= 12 && fabsf(bvel) < 0.02f && fabsf(bp) < 0.3f);   // wait at the bottom until her chest has stopped jiggling, then jump
-    snd.noTone(); if (was) ab.audio.on(); autoJ = false;                // (stop any silent tone first, or it clicks once audio is back on)
+    snd.noTone(); mute = false; autoJ = false;
     if (airIn > 9 && phase == P_BOTTOM) relT = 1;
   } else if (++relT > 80) { relT = 0; airIn = 0; }
   springs(phase == P_AIR && vy < -0.3f);
