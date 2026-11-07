@@ -7,7 +7,7 @@ and pushes air into the balloon. Time each jump for the moment the pump bottoms 
 everything. After 11 seconds the balloon slips off the nozzle and leaks its way up into the sky, past the
 clouds, the birds and the planes, into the stars. How high can you get it?
 
-By **jaychugstein** · MIT License · **Arduboy FX / FX-C** and **POOM** (uses the FX flash chip).
+By **jaychugstein** · MIT License · **Arduboy FX / FX-C** (uses the FX flash chip).
 
 **Play it in your browser:** https://jaychugstein.github.io/Balloon-Babe/ (works on phones too)
 
@@ -55,7 +55,7 @@ A and B do exactly the same thing everywhere, so it doesn't matter how your devi
 
 Load `release/BalloonBabe.arduboy` with any FX-aware uploader (for example the Arduboy Web Flasher or the
 Arduboy-Python-Utilities), or the `.hex` together with `release/BalloonBabe-fxdata.bin`. Add it to an FX
-cart image the usual way to play it on an Arduboy FX / FX-C or a POOM.
+cart image the usual way to play it on an Arduboy FX / FX-C.
 
 The game is built with `ARDUBOY_NO_USB` to save space, like most cart games: to upload something else
 afterwards, press reset when the uploader asks.
