@@ -332,6 +332,12 @@ void hud() {                               // the time left
 }
 
 // ---------------------------------------------------------------- screens
+void pressBtn(int16_t cx, int16_t cy) {    // a round Arduboy button in its ring; pushed in now and then
+  bool dn = (tick & 31) >= 24;
+  ab.drawCircle(cx, cy, 4, BLACK);                                   // the ring in the case
+  if (dn) ab.fillCircle(cx, cy, 2, BLACK);                           // pushed down into the ring
+  else { ab.fillCircle(cx, cy - 1, 2, BLACK); ab.drawPixel(cx - 1, cy - 2, WHITE); }   // raised, with a shine
+}
 uint8_t relT;                                // title: counting through the balloon flying off
 void startScreen() {
   // she plays exactly as in the game (same physics, poses, chest and skirt), doing slow full jumps by herself.
@@ -354,10 +360,18 @@ void startScreen() {
     float a = -1.57f + sinf(t * 0.35f) * 0.7f; drawLoose(cx, cy, r, cosf(a), sinf(a));
   }
   drawBabe(TX, babePose(), 0);
-  FX::drawBitmap(124 - LOGO_W, 2, FX_LOGO, 0, dbmMasked);            // a few pixels in from the edges
+  FX::drawBitmap(126 - LOGO_W, 2, FX_LOGO, 0, dbmMasked);            // a few pixels in from the edges
   tw_ = false;
-  if (best) { static const char T2[] PROGMEM = "BEST "; uint8_t n = 5 + 1 + (best > 9) + (best > 99) + (best > 999); boldText(124 - LOGO_W + LOGO_BABE_CX - n * 3, 44, T2, best); }
-  { static const char T2[] PROGMEM = "PRESS {"; if (tick & 32) boldText(124 - LOGO_W + LOGO_BABE_CX - 22, 54, T2); }   // centred under BABE; blinks with a thin white edge
+  {   // a little sign on the fence, centred under BABE: PRESS and the button; once there's a best, it takes turns with BEST
+    const int16_t cx = 126 - LOGO_W + LOGO_BABE_CX;
+    if (best && (tick & 255) >= 176) {
+      static const char T2[] PROGMEM = "BEST "; uint8_t n = 5 + 1 + (best > 9) + (best > 99) + (best > 999) + (best > 9999); int16_t w = n * 6 + 9;
+      ab.fillRoundRect(cx - w / 2, 49, w, 14, 3, WHITE); ab.drawRoundRect(cx - w / 2, 49, w, 14, 3, BLACK); boldText(cx - w / 2 + 4, 53, T2, best);
+    } else {
+      static const char T2[] PROGMEM = "PRESS"; int16_t x = cx - 22;
+      ab.fillRoundRect(x - 4, 49, 52, 14, 3, WHITE); ab.drawRoundRect(x - 4, 49, 52, 14, 3, BLACK); boldText(x, 53, T2); pressBtn(x + 39, 56);
+    }
+  }
   if (ab.justPressed(A_BUTTON) || ab.justPressed(B_BUTTON)) { snd.noTone(); st = S_SOUND; tick = 0; rs ^= (uint16_t)micros() | 1; }   // (seeds the cheers and flight paths)
 }
 void pumpScreen() {
@@ -548,14 +562,20 @@ void scoreScreen() {
 }
 
 // ---------------------------------------------------------------- sound on/off, then her how-to-play talk
+float selY;                                   // the sound screen's balloon, floating to the choice
 void soundScreen() {
   ab.fillScreen(WHITE);
   for (uint8_t k = 0; k < 8; k++) heart(6 + k * 15, 3 + (k & 1) * 52, BLACK);        // a row of hearts top and bottom
-  static const char T[] PROGMEM = "SOUND"; for (uint8_t i = 0; i < 5; i++) bigc(35 + i * 12, 10, pgm_read_byte(T + i), 2);
+  FX::drawBitmap(64 - SOUND_W / 2, 10, FX_SOUND, 0, dbmMasked);                      // SOUND, outlined like the logo
   bool on = ab.audio.enabled();
-  static const char ON[] PROGMEM = "ON", OFF[] PROGMEM = "OFF";
-  boldText(58, 31, ON); boldText(55, 42, OFF);
-  heart(44, on ? 32 : 43, BLACK); heart(77, on ? 32 : 43, BLACK);                   // hearts either side of the choice
+  FX::drawBitmap(64 - ON_W / 2, 33, FX_ON, 0, dbmMasked); FX::drawBitmap(64 - OFF_W / 2, 45, FX_OFF, 0, dbmMasked);
+  // a little balloon beside the choice: it floats up or down to it, bobs, and its string sways
+  float want = on ? 33 : 45; if (tick <= 1) selY = want; selY += (want - selY) * 0.25f;
+  int16_t bx = 46, by = (int16_t)(selY + 0.5f) + 3 - ((tick >> 4) & 1);
+  ab.fillCircle(bx, by, 4, BLACK); ab.drawPixel(bx - 2, by - 2, WHITE); ab.drawPixel(bx - 2, by - 1, WHITE); ab.drawPixel(bx - 1, by - 2, WHITE);
+  ab.drawFastHLine(bx - 1, by + 5, 3, BLACK);                                          // the knot
+  int8_t sw = ((tick >> 3) & 3) == 1 ? 1 : ((tick >> 3) & 3) == 3 ? -1 : 0;          // the string swaying
+  for (uint8_t i = 0; i < 4; i++) ab.drawPixel(bx + (i >= 1 && i <= 2 ? sw : 0), by + 6 + i, BLACK);
   if (ab.justPressed(UP_BUTTON) && !on) { ab.audio.on(); snd.tone(880, 60); }
   if (ab.justPressed(DOWN_BUTTON) && on) ab.audio.off();
   if (tick > 10 && (ab.justPressed(A_BUTTON) || ab.justPressed(B_BUTTON))) { ab.audio.saveOnOff(); st = S_TALK; tick = 0; talkPage = 0; talkN = 0; }   // either button goes on
@@ -563,7 +583,7 @@ void soundScreen() {
 // her talk: two pages in a speech bubble beside her portrait, typed out a letter at a time. A shows it all, then turns
 // the page; after the second page the round starts.
 const char TALK1[] PROGMEM = "HEY CUTIE!\nCAN YOU\nHELP ME\nPUMP UP MY\nBALLOON?\n*TIMING IS\nEVERYTHING!*";   // (*...* = bold)
-const char TALK2[] PROGMEM = "HOLD { FOR\nA BIG JUMP,\nTAP { FOR\nA SMALL HOP\n\n*LET'S\nBOUNCE!*";
+const char TALK2[] PROGMEM = "HOLD } FOR\nA BIG JUMP,\nTAP } FOR\nA SMALL HOP\n\n*LET'S\nBOUNCE!*";
 void talkScreen() {
   ab.fillScreen(WHITE);
   FX::drawBitmap(0, 0, FX_PORTRAIT, 0, dbmMasked);
@@ -578,7 +598,7 @@ void talkScreen() {
   bool bold = false;
   for (uint8_t i = 0; i < talkN; i++) { char c = pgm_read_byte(t + i);
     if (c == '*') bold = !bold; else if (c == '\n') { x = 57; y += 8; } else { if (bold) { at(x + 1, y); pc(c); } at(x, y); pc(c); x = tx_; } }
-  if (talkN >= len && (tick & 16)) { static const char AB[] PROGMEM = "{"; at(x + 2, y); pp(AB); }   // the A button blinks after the last word: press it
+  if (talkN >= len && (tick & 16)) { static const char AB[] PROGMEM = "}"; at(x + 2, y); pp(AB); }   // the B button blinks after the last word: press it
   if (tick > 6 && (ab.justPressed(A_BUTTON) || ab.justPressed(B_BUTTON))) {
     if (talkN < len) talkN = len;
     else if (!talkPage) { talkPage = 1; talkN = 0; tick = 0; }

@@ -14,19 +14,19 @@ By **jaychugstein** · MIT License · **Arduboy FX / FX-C** (uses the FX flash c
 ![](images/screenshot1.png) ![](images/screenshot2.png)
 ![](images/screenshot3.png) ![](images/screenshot4.png)
 ![](images/screenshot5.png) ![](images/screenshot6.png)
-![](images/screenshot7.png)
+![](images/screenshot7.png) ![](images/screenshot8.png)
 
 ## Controls
 
-A and B do exactly the same thing everywhere, so it doesn't matter how your device maps them.
+B (the outer button) is the main button, and the game shows B wherever it shows a button. A does exactly the same thing everywhere, so either one works.
 
 | Button | What it does |
 |---|---|
-| A or B (hold) | A big, full-height jump |
-| A or B (tap) | A small hop |
-| A or B | Start · next screen · show the whole speech bubble / turn the page |
+| B or A (hold) | A big, full-height jump |
+| B or A (tap) | A small hop |
+| B or A | Start · next screen · show the whole speech bubble / turn the page |
 | Up / Down | Sound on or off (sound screen) |
-| Right (or A / B) | Play again (score screen) |
+| Right (or B / A) | Play again (score screen) |
 | Left | Back to the title (score screen) |
 
 ## How a round works
@@ -49,7 +49,7 @@ A and B do exactly the same thing everywhere, so it doesn't matter how your devi
   out, measured to the millisecond, 0 points at 300 ms off) times height (a full, held jump).
   Within about 40 ms with a full jump is a **PERFECT** (with a ding).
 - Every jump gets a cheer, one of 30, from PERFECT! and FLAWLESS! down to KEEP GOING! and STAY CUTE!
-- **Score = jump points + height in feet.** Your best score is saved.
+- **Score = jump points + height in feet.** Your best score is saved, and the sign on the title screen takes turns showing it.
 
 ## Install
 
@@ -69,12 +69,12 @@ The sketch is in `BalloonBabe/` and needs the **Arduboy2**, **ArduboyFX** and **
 * **Command line:** `./build.sh` (set the library paths at the top) → `build/BalloonBabe.hex`.
 
 All the art is drawn by Python scripts in `art/` (needs numpy, scipy and Pillow; the logo uses the
-Noto Sans CJK Black font) and packed into the FX data:
+Noto Sans CJK Black and Poppins Bold fonts) and packed into the FX data:
 
 ```
 cd art
 python3 babe2.py && python3 export.py      # her sprite: 6 poses, the bouncing chest, the skirt -> BalloonBabe/sprites.h
-python3 portrait.py && python3 logo3.py    # the talking portrait and the title logo
+python3 portrait.py && python3 logo4.py    # the talking portrait, the title logo and the sound screen words
 python3 fxpack.py                          # writes BalloonBabe/fxdata/fxdata.bin and BalloonBabe/fxdata.h
 ```
 

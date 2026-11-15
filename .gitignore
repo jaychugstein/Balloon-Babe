@@ -1,0 +1,5 @@
+build/
+art/*.npy
+art/*.pkl
+art/*_preview.png
+__pycache__/

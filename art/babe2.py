@@ -16,9 +16,9 @@ TORSO_ROWS = ["....XX......XX....",
              "X...X........X...X",
              ".X...XX....XX...X.",
              "..XX..........XX..",
-             "..XX..........XX..",
-             "...X..........X...",
-             "...X..........X..."]
+             "..XX...XXXX...XX..",
+             "...XXXX....XXXX...",
+             "...X....X.....X..."]   # (her top ends in a small arch with her belly button showing, so the waist reads as a crop top, not shirtless)
 def torso_variant(T, b):                    # bust moved b pixels (+ down / - up); the waist stays put
     T = list(T); chest, mid = T[:8], T[8:]
     for _ in range(abs(b)):
